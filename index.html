@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8">
+    <title>Izin Bot Semangat</title>
+  </head>
+  <body>
+    <h1>Kode izin TikTok</h1>
+    <p id="hasil"></p>
+    <script>
+      const params = new URLSearchParams(location.search)
+      document.getElementById('hasil').textContent =
+        params.get('code') ||
+        params.get('error_description') ||
+        'Kode tidak ditemukan'
+    </script>
+  </body>
+</html>
