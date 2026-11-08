@@ -2,17 +2,163 @@
 <html lang="id">
   <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="referrer" content="no-referrer">
+    <meta name="robots" content="noindex">
     <title>Izin Bot Semangat</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-height: 100vh;
+        margin: 0;
+        padding: 24px;
+        display: grid;
+        place-items: center;
+        background: #f6f2ef;
+        color: #27211e;
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        line-height: 1.5;
+      }
+
+      main {
+        width: 100%;
+        max-width: 480px;
+        padding: 28px;
+        background: #ffffff;
+        border: 1px solid #e7dfd9;
+        border-radius: 16px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 1.5rem;
+        line-height: 1.25;
+      }
+
+      p {
+        margin: 0;
+      }
+
+      #pesan {
+        color: #62574f;
+      }
+
+      #kode {
+        display: block;
+        max-height: 180px;
+        margin: 20px 0 12px;
+        padding: 14px;
+        overflow-y: auto;
+        background: #f6f2ef;
+        border-radius: 10px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+        font-size: 0.875rem;
+        user-select: all;
+        word-break: break-all;
+      }
+
+      button {
+        width: 100%;
+        min-height: 48px;
+        padding: 12px 16px;
+        border: 0;
+        border-radius: 10px;
+        background: #c83e62;
+        color: #ffffff;
+        font: inherit;
+        font-weight: 650;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #ad3254;
+      }
+
+      button:focus-visible {
+        outline: 3px solid #27211e;
+        outline-offset: 2px;
+      }
+
+      ol {
+        margin: 20px 0 0;
+        padding-left: 20px;
+        color: #62574f;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+    </style>
   </head>
   <body>
-    <h1>Kode izin TikTok</h1>
-    <p id="hasil"></p>
+    <main>
+      <h1 id="judul">Menyiapkan kode...</h1>
+      <p id="pesan"></p>
+
+      <section id="area-kode" hidden>
+        <code id="kode"></code>
+        <button id="salin" type="button">Salin kode</button>
+        <ol>
+          <li>Buka Discord.</li>
+          <li>Jalankan <strong>/tiktok code</strong>.</li>
+          <li>Tempel seluruh kode ini, lalu kirim.</li>
+        </ol>
+      </section>
+    </main>
+
     <script>
       const params = new URLSearchParams(location.search)
-      document.getElementById('hasil').textContent =
-        params.get('code') ||
-        params.get('error_description') ||
-        'Kode tidak ditemukan'
+      const code = params.get('code')
+      const state = params.get('state')
+      const error = params.get('error')
+      const errorDescription = params.get('error_description')
+
+      const judul = document.getElementById('judul')
+      const pesan = document.getElementById('pesan')
+      const areaKode = document.getElementById('area-kode')
+      const kode = document.getElementById('kode')
+      const salin = document.getElementById('salin')
+
+      function pilihKode() {
+        const range = document.createRange()
+        range.selectNodeContents(kode)
+
+        const selection = window.getSelection()
+        selection.removeAllRanges()
+        selection.addRange(range)
+      }
+
+      async function salinKode() {
+        try {
+          await navigator.clipboard.writeText(kode.textContent)
+          salin.textContent = 'Kode tersalin'
+        } catch {
+          pilihKode()
+          salin.textContent = 'Kode sudah dipilih, salin manual'
+        }
+
+        setTimeout(() => {
+          salin.textContent = 'Salin kode'
+        }, 3000)
+      }
+
+      if (code && state) {
+        judul.textContent = 'Izin berhasil'
+        pesan.textContent = 'Salin kode di bawah dan kirim ke bot sekarang. Kode ini hanya bisa dipakai sekali.'
+        kode.textContent = `${state}.${code}`
+        areaKode.hidden = false
+        salin.addEventListener('click', salinKode)
+        history.replaceState(null, '', location.pathname)
+      } else if (error || errorDescription) {
+        judul.textContent = 'Izin belum berhasil'
+        pesan.textContent = errorDescription || 'TikTok tidak memberikan izin. Jalankan /tiktok connect lagi.'
+      } else {
+        judul.textContent = 'Kode tidak ditemukan'
+        pesan.textContent = 'Buka halaman ini lewat link dari perintah /tiktok connect di Discord.'
+      }
     </script>
   </body>
 </html>
